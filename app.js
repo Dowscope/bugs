@@ -14,12 +14,47 @@ class Tile {
 
 var canvas = document.getElementById("gameBoard")   // Canvas Object
 var ctx = canvas.getContext("2d")                   // Graphics Context
+var scale = 1
+var currentZoom = 0
+var originX = 0, originY = 0
 const gameTiles = []                                // Game Tiles
 var gameSpriteSheet = new Image()                   // Sprites for the game
 const worldWidth = 100                              // World dimension
 const tileSize = 32                                 // Set the tile size
 
 function init() {
+  var mouseX = 0, mouseY = 0
+  canvas.addEventListener("wheel", (e) => {
+    var zoom = 0
+    if (e.deltaY/150 < 0){
+      zoom = 0.5
+      console.log(currentZoom)
+      if (currentZoom == 1){
+        return
+      }
+    }
+    else {
+      mouseX = e.clientX - canvas.offsetLeft
+      mouseY = e.clientY - canvas.offsetTop
+      zoom = 2
+      if (currentZoom == 32){
+        return
+      }
+    }
+    if (zoom != 0){
+      currentZoom *= zoom
+      
+      ctx.translate(originX, originY)
+      ctx.scale(zoom,zoom)
+      ctx.translate(
+        -(mouseX / scale + originX - mouseX / (scale * zoom)),
+        -(mouseY / scale + originY - mouseY / (scale * zoom))
+      )
+      originX = (mouseX / scale + originX - mouseX / (scale * zoom))
+      originY = (mouseY / scale + originY - mouseY / (scale * zoom))
+      scale *= zoom
+    }
+  })
   gameSpriteSheet.src = 'images/minitrees.png'
 }
 
@@ -42,6 +77,9 @@ function drawWorld() {
     }
 
   }
+}
+
+function eventManager(){
 }
 
 function gameLoop() {
